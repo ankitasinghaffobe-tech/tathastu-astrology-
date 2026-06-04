@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tathastu Astrology</title>
+<style>
+:root{
+--midnight:#0a0e1a;--space:#0d1228;--deep:#111827;--card:#141a2e;--card2:#1a2140;
+--purple:#7c3aed;--purple2:#9d5cf6;--gold:#d4a017;--gold2:#f0c040;--gold3:#ffd700;
+--white:#f0eeff;--gray:#9ca3af;--border:rgba(124,58,237,.25);
+--glow:0 0 40px rgba(124,58,237,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--midnight);color:var(--white);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--space)}
+::-webkit-scrollbar-thumb{background:var(--purple);border-radius:3px}
+
+/* STARS BG */
+#stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* LAYOUT */
+.page{position:relative;z-index:1;min-height:100vh}
+.hidden{display:none!important}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;backdrop-filter:blur(20px);background:rgba(10,14,26,.85);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:.75rem;cursor:pointer}
+.nav-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--purple),var(--gold));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.nav-logo-text{font-size:1.1rem;font-weight:700;background:linear-gradient(90deg,var(--gold2),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;align-items:center;gap:.25rem}
+.nav-link{padding:.5rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;color:var(--gray);transition:all .2s;border:none;background:none;white-space:nowrap}
+.nav-link:hover,.nav-link.active{color:var(--white);background:rgba(124,58,237,.2)}
+.nav-actions{display:flex;align-items:center;gap:.75rem}
+.btn-nav{padding:.45rem 1.1rem;border-radius:6px;font-size:.85rem;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--white);transition:all .2s}
+.btn-nav:hover{background:rgba(124,58,237,.2)}
+.btn-nav.primary{background:linear-gradient(135deg,var(--purple),var(--purple2));border-color:transparent}
+.btn-nav.primary:hover{opacity:.9}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:.5rem}
+.hamburger span{width:22px;height:2px;background:var(--white);border-radius:2px;transition:.3s}
+
+/* MOBILE NAV */
+@media(max-width:900px){
+  .nav-links{display:none;position:fixed;top:64px;left:0;right:0;bottom:0;background:rgba(10,14,26,.97);flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;z-index:999}
+  .nav-links.open{display:flex}
+  .nav-link{font-size:1.1rem}
+  .hamburger{display:flex}
+  .nav-actions{gap:.5rem}
+  .btn-nav{padding:.4rem .8rem;font-size:.8rem}
+}
+
+/* SECTIONS */
+section{padding:5rem 2rem}
+.container{max-width:1200px;margin:0 auto}
+.section-tag{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1rem;background:rgba(124,58,237,.15);border:1px solid var(--border);border-radius:100px;font-size:.78rem;color:var(--purple2);margin-bottom:1.5rem;letter-spacing:.05em;text-transform:uppercase}
+h1.hero-title{font-size:clamp(2.2rem,5vw,4rem);font-weight:800;line-height:1.1;background:linear-gradient(135deg,var(--white) 40%,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2.section-title{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;background:linear-gradient(90deg,var(--white),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.75rem}
+.section-sub{color:var(--gray);font-size:1rem;line-height:1.7;max-width:600px}
+.text-center{text-align:center}
+.text-center .section-sub{margin:0 auto}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:64px;position:relative;overflow:hidden}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;max-width:1200px;margin:0 auto;width:100%;padding:0 2rem}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:100px;font-size:.8rem;color:var(--gold2);margin-bottom:1.5rem}
+.hero-desc{color:var(--gray);font-size:1.05rem;line-height:1.75;margin:1.5rem 0 2rem}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap}
+.btn{padding:.75rem 1.75rem;border-radius:8px;font-size:.95rem;cursor:pointer;border:none;transition:all .25s;font-weight:600;letter-spacing:.02em}
+.btn-primary{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#fff;box-shadow:0 4px 20px rgba(124,58,237,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,.5)}
+.btn-secondary{background:transparent;border:1px solid var(--gold);color:var(--gold2)}
+.btn-secondary:hover{background:rgba(212,160,23,.1);transform:translateY(-2px)}
+.hero-stats{display:flex;gap:2.5rem;margin-top:2.5rem;flex-wrap:wrap}
+.hero-stat .num{font-size:1.8rem;font-weight:800;background:linear-gradient(90deg,var(--gold2),var(--gold3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-stat .lbl{font-size:.8rem;color:var(--gray);margin-top:.15rem}
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
+#zodiac-canvas{width:100%;max-width:480px;height:480px}
+@media(max-width:800px){
+  .hero-inner{grid-template-columns:1fr;text-align:center}
+  .hero-btns{justify-content:center}
+  .hero-stats{justify-content:center}
+  .hero-visual{display:none}
+}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.75rem;transition:all .3s}
+.card:hover{border-color:rgba(124,58,237,.5);box-shadow:0 8px 40px rgba(124,58,237,.15);transform:translateY(-4px)}
+.card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1.25rem}
+.card-icon.purple{background:rgba(124,58,237,.15);color:var(--purple2)}
+.card-icon.gold{background:rgba(212,160,23,.15);color:var(--gold2)}
+.card h3{font-size:1.05rem;font-weight:700;margin-bottom:.6rem}
+.card p{color:var(--gray);font-size:.9rem;line-height:1.65}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem}
+
+/* SERVICES */
+.service-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .3s}
+.service-card:hover{transform:translateY(-4px);border-color:rgba(212,160,23,.4)}
+.service-header{padding:1.5rem;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(212,160,23,.05))}
+.service-header .icon{font-size:2rem;margin-bottom:.75rem}
+.service-header h3{font-size:1rem;font-weight:700}
+.service-body{padding:1.5rem}
+.service-body p{color:var(--gray);font-size:.88rem;line-height:1.6;margin-bottom:1rem}
+.service-price{display:flex;align-items:baseline;gap:.4rem;margin-bottom:1rem}
+.service-price .amt{font-size:1.4rem;font-weight:800;color:var(--gold2)}
+.service-price .per{color:var(--gray);font-size:.8rem}
+.btn-sm{padding:.5rem 1.1rem;font-size:.82rem;border-radius:6px;cursor:pointer;border:1px solid var(--purple);background:transparent;color:var(--purple2);transition:all .2s}
+.btn-sm:hover{background:var(--purple);color:#fff}
+.tag{display:inline-block;padding:.2rem .6rem;background:rgba(124,58,237,.15);border-radius:4px;font-size:.75rem;color:var(--purple2);margin:.2rem .2rem 0 0}
+
+/* ASTROLOGERS */
+.astro-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all .3s;text-align:center}
+.astro-card:hover{transform:translateY(-4px);border-color:rgba(124,58,237,.5)}
+.astro-avatar{width:80px;height:80px;border-radius:50%;margin:1.5rem auto .75rem;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;background:linear-gradient(135deg,var(--purple),var(--purple2))}
+.astro-name{font-weight:700;font-size:1rem;margin-bottom:.25rem}
+.astro-exp{color:var(--gray);font-size:.82rem;margin-bottom:.5rem}
+.stars{color:var(--gold2);font-size:.85rem;margin-bottom:.5rem}
+.astro-fee{color:var(--gold2);font-weight:700;font-size:.95rem;margin-bottom:1rem}
+.astro-langs{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem;padding:0 1rem}
+.astro-body{padding:0 1.25rem 1.5rem}
+
+/* HOROSCOPE */
+.zodiac-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.zodiac-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;cursor:pointer;transition:all .2s;text-align:center}
+.zodiac-card:hover,.zodiac-card.active{border-color:var(--gold);box-shadow:0 0 20px rgba(212,160,23,.2)}
+.zodiac-symbol{font-size:2rem;margin-bottom:.5rem}
+.zodiac-name{font-weight:700;font-size:.95rem}
+.zodiac-dates{font-size:.75rem;color:var(--gray)}
+.horoscope-detail{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-top:2rem;display:none}
+.horoscope-detail.show{display:block}
+
+/* BLOG */
+.blog-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .3s}
+.blog-card:hover{transform:translateY(-4px);border-color:rgba(124,58,237,.5)}
+.blog-img{height:160px;background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(212,160,23,.2));display:flex;align-items:center;justify-content:center;font-size:3rem}
+.blog-body{padding:1.25rem}
+.blog-cat{font-size:.75rem;color:var(--purple2);font-weight:600;text-transform:uppercase;margin-bottom:.5rem}
+.blog-title{font-size:.95rem;font-weight:700;margin-bottom:.5rem;line-height:1.4}
+.blog-meta{font-size:.78rem;color:var(--gray)}
+
+/* TESTIMONIALS */
+.testimonial{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.75rem}
+.testi-text{color:var(--gray);font-size:.92rem;line-height:1.7;margin-bottom:1.25rem;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:.75rem}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--gold));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}
+.testi-name{font-weight:700;font-size:.9rem}
+.testi-loc{font-size:.78rem;color:var(--gray)}
+
+/* PRICING */
+.pricing-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;transition:all .3s;position:relative;overflow:hidden}
+.pricing-card.featured{border-color:var(--gold);box-shadow:0 0 40px rgba(212,160,23,.2)}
+.pricing-card.featured::before{content:'Most Popular';position:absolute;top:16px;right:-30px;background:linear-gradient(90deg,var(--gold),var(--gold2));color:#000;font-size:.72rem;font-weight:700;padding:.3rem 3rem;transform:rotate(35deg);text-transform:uppercase;letter-spacing:.05em}
+.plan-name{font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--purple2);margin-bottom:.75rem}
+.plan-price{font-size:2.5rem;font-weight:800;color:var(--gold2);margin-bottom:.25rem}
+.plan-price span{font-size:1rem;font-weight:400;color:var(--gray)}
+.plan-desc{color:var(--gray);font-size:.88rem;margin-bottom:1.5rem}
+.plan-features{list-style:none;margin-bottom:2rem}
+.plan-features li{padding:.5rem 0;font-size:.88rem;color:var(--gray);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:.6rem}
+.plan-features li::before{content:'✦';color:var(--gold2);font-size:.7rem}
+
+/* FAQ */
+.faq-item{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:.75rem}
+.faq-q{padding:1.1rem 1.5rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.93rem;background:var(--card)}
+.faq-q:hover{background:var(--card2)}
+.faq-q .arrow{transition:.3s;color:var(--purple2)}
+.faq-a{padding:0 1.5rem;max-height:0;overflow:hidden;transition:.3s;color:var(--gray);font-size:.88rem;line-height:1.7}
+.faq-item.open .faq-a{max-height:200px;padding:1rem 1.5rem}
+.faq-item.open .arrow{transform:rotate(180deg)}
+
+/* SEARCH/FILTER */
+.search-bar{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
+.search-bar input,.search-bar select{flex:1;min-width:200px;padding:.7rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.9rem;outline:none}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--purple)}
+.search-bar input::placeholder{color:var(--gray)}
+.search-bar select option{background:var(--deep)}
+
+/* KUNDLI FORM */
+.kundli-form{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:600px;margin:0 auto}
+.form-group{margin-bottom:1.25rem}
+.form-group label{display:block;font-size:.85rem;color:var(--gray);margin-bottom:.4rem;font-weight:600}
+.form-group input,.form-group select{width:100%;padding:.75rem 1rem;background:var(--deep);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.9rem;outline:none;transition:.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.form-group input::placeholder{color:var(--gray)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.kundli-result{background:var(--deep);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-top:2rem;display:none}
+.kundli-result.show{display:block}
+.kundli-table{width:100%;border-collapse:collapse;margin-top:1rem}
+.kundli-table th{padding:.6rem 1rem;text-align:left;font-size:.8rem;color:var(--gold2);text-transform:uppercase;border-bottom:1px solid var(--border)}
+.kundli-table td{padding:.6rem 1rem;font-size:.88rem;color:var(--gray);border-bottom:1px solid rgba(255,255,255,.04)}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.contact-form input,.contact-form textarea,.contact-form select{width:100%;padding:.75rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.9rem;outline:none;margin-bottom:1rem;transition:.2s;font-family:inherit}
+.contact-form input:focus,.contact-form textarea:focus{border-color:var(--purple)}
+.contact-form input::placeholder,.contact-form textarea::placeholder{color:var(--gray)}
+.contact-form textarea{min-height:130px;resize:vertical}
+.contact-info-item{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.75rem}
+.contact-icon{width:44px;height:44px;border-radius:10px;background:rgba(124,58,237,.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+@media(max-width:700px){.contact-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+
+/* AUTH */
+.auth-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:2000;display:flex;align-items:center;justify-content:center}
+.auth-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;position:relative}
+.auth-box h2{font-size:1.5rem;font-weight:800;margin-bottom:.5rem;background:linear-gradient(90deg,var(--white),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-box p{color:var(--gray);font-size:.88rem;margin-bottom:2rem}
+.auth-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
+.auth-tab{flex:1;padding:.6rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--gray);cursor:pointer;font-size:.88rem;transition:.2s}
+.auth-tab.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.auth-hint{background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.2);border-radius:8px;padding:.75rem 1rem;font-size:.8rem;color:var(--gold2);margin-bottom:1rem}
+.close-btn{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--gray);cursor:pointer;font-size:1.3rem;line-height:1}
+.error-msg{color:#f87171;font-size:.82rem;margin-top:.25rem;display:none}
+
+/* DASHBOARD BASE */
+.dashboard{display:grid;grid-template-columns:240px 1fr;min-height:100vh;padding-top:64px}
+.sidebar{background:var(--deep);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto}
+.sidebar-item{padding:.65rem 1.5rem;cursor:pointer;display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:var(--gray);transition:.2s;border-left:3px solid transparent;margin-bottom:.1rem}
+.sidebar-item:hover,.sidebar-item.active{color:var(--white);background:rgba(124,58,237,.1);border-left-color:var(--purple)}
+.sidebar-item .icon{font-size:1.1rem;width:20px;text-align:center}
+.sidebar-section{padding:.75rem 1.5rem .25rem;font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:rgba(156,163,175,.5)}
+.dash-content{padding:2rem;background:var(--space);overflow-y:auto}
+.dash-header{margin-bottom:2rem}
+.dash-header h2{font-size:1.5rem;font-weight:700}
+.dash-header p{color:var(--gray);font-size:.88rem;margin-top:.25rem}
+
+/* DASH METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.metric .label{font-size:.78rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+.metric .value{font-size:1.8rem;font-weight:800;background:linear-gradient(90deg,var(--gold2),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.metric .change{font-size:.78rem;margin-top:.25rem}
+.metric .change.up{color:#4ade80}
+.metric .change.down{color:#f87171}
+
+/* DASH TABLE */
+.dash-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.dash-table-head{padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.dash-table-head h3{font-size:.95rem;font-weight:700}
+table.dt{width:100%;border-collapse:collapse}
+table.dt th{padding:.6rem 1rem;text-align:left;font-size:.78rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+table.dt td{padding:.7rem 1rem;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tr:hover td{background:rgba(124,58,237,.05)}
+.badge{padding:.25rem .65rem;border-radius:100px;font-size:.72rem;font-weight:600}
+.badge.active{background:rgba(74,222,128,.15);color:#4ade80}
+.badge.pending{background:rgba(251,191,36,.15);color:#fbbf24}
+.badge.done{background:rgba(124,58,237,.2);color:var(--purple2)}
+
+/* CHART AREA */
+.chart-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem}
+.chart-box h3{font-size:.95rem;font-weight:700;margin-bottom:1rem}
+canvas.chart{width:100%!important;height:220px!important}
+
+/* PROFILE WIDGET */
+.profile-widget{background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(212,160,23,.1));border:1px solid var(--border);border-radius:16px;padding:1.75rem;text-align:center;margin-bottom:1.5rem}
+.profile-avatar{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 1rem}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple),var(--gold))}
+.tl-item{position:relative;padding-bottom:2rem}
+.tl-item::before{content:'';position:absolute;left:-2.35rem;top:.3rem;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid var(--space)}
+.tl-year{font-size:.8rem;color:var(--gold2);font-weight:700;margin-bottom:.25rem}
+.tl-title{font-weight:700;margin-bottom:.25rem}
+.tl-desc{color:var(--gray);font-size:.88rem}
+
+/* MAP PLACEHOLDER */
+.map-ph{height:280px;background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:3rem;color:rgba(124,58,237,.3);position:relative;overflow:hidden}
+.map-ph::after{content:'New Delhi, India';position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);font-size:.85rem;color:var(--gray);background:var(--card);padding:.4rem 1rem;border-radius:100px;border:1px solid var(--border)}
+
+/* NOTIFICATION */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;font-size:.88rem;z-index:9999;transform:translateY(100px);opacity:0;transition:.4s;max-width:320px}
+.toast.show{transform:none;opacity:1}
+.toast.success{border-color:rgba(74,222,128,.4)}
+.toast.error{border-color:rgba(248,113,113,.4)}
+
+/* FOOTER */
+footer{background:var(--deep);border-top:1px solid var(--border);padding:4rem 2rem 2rem}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;max-width:1200px;margin:0 auto 3rem}
+.footer-brand p{color:var(--gray);font-size:.88rem;line-height:1.7;margin-top:.75rem;max-width:280px}
+.footer-col h4{font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;color:var(--gold2)}
+.footer-col a{display:block;color:var(--gray);font-size:.85rem;margin-bottom:.5rem;cursor:pointer;transition:.2s;text-decoration:none}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{text-align:center;color:var(--gray);font-size:.8rem;border-top:1px solid var(--border);padding-top:2rem;max-width:1200px;margin:0 auto}
+@media(max-width:700px){.footer-grid{grid-template-columns:1fr 1fr}.footer-brand{grid-column:1/-1}}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
+.reveal.visible{opacity:1;transform:none}
+
+/* RESPONSIVE DASH */
+@media(max-width:800px){
+  .dashboard{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .dash-content{padding:1.25rem}
+}
+@media(max-width:600px){
+  section{padding:3.5rem 1rem}
+  .hero-inner{padding:0 1rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-icon">✦</div>
+    <span class="nav-logo-text">Tathastu Astrology</span>
+  </div>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-link active" onclick="showPage('home');closeMenu()">Home</button>
+    <button class="nav-link" onclick="showPage('about');closeMenu()">About</button>
+    <button class="nav-link" onclick="showPage('services');closeMenu()">Services</button>
+    <button class="nav-link" onclick="showPage('astrologers');closeMenu()">Astrologers</button>
+    <button class="nav-link" onclick="showPage('horoscope');closeMenu()">Horoscope</button>
+    <button class="nav-link" onclick="showPage('kundli');closeMenu()">Kundli</button>
+    <button class="nav-link" onclick="showPage('blog');closeMenu()">Blog</button>
+    <button class="nav-link" onclick="showPage('pricing');closeMenu()">Pricing</button>
+    <button class="nav-link" onclick="showPage('contact');closeMenu()">Contact</button>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-nav" id="login-btn" onclick="openAuth()">Login</button>
+    <button class="btn-nav primary" onclick="showPage('pricing')">Get Started</button>
+    <div class="hamburger" onclick="toggleMenu()" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- AUTH MODAL -->
+<div class="auth-overlay hidden" id="auth-overlay">
+  <div class="auth-box">
+    <button class="close-btn" onclick="closeAuth()">&#x2715;</button>
+    <h2>Welcome Back</h2>
+    <p>Sign in to access your cosmic journey</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-user" onclick="switchTab('user')">User Login</button>
+      <button class="auth-tab" id="tab-admin" onclick="switchTab('admin')">Admin Login</button>
+    </div>
+    <div class="auth-hint" id="auth-hint-user">Demo: user@123 / userdemo</div>
+    <div class="auth-hint hidden" id="auth-hint-admin">Demo: Admin@123 / admindemo</div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="auth-email" placeholder="Enter your email">
+      <div class="error-msg" id="email-err">Invalid email</div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="auth-pass" placeholder="Enter your password">
+      <div class="error-msg" id="pass-err">Incorrect password</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:.5rem" onclick="doLogin()">Sign In</button>
+    <p style="text-align:center;margin-top:1rem;font-size:.82rem;color:var(--gray)">New user? <span style="color:var(--purple2);cursor:pointer" onclick="showPage('pricing');closeAuth()">Create Account</span></p>
+  </div>
+</div>
+
+<!-- ========== PAGES ========== -->
+
+<!-- HOME PAGE -->
+<div id="page-home" class="page">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-badge">✦ Trusted by 50,000+ Seekers Across India</div>
+        <h1 class="hero-title">Unlock the Secrets<br>of Your Cosmic<br>Destiny</h1>
+        <p class="hero-desc">Tathastu Astrology connects you with India's most gifted astrologers for authentic Vedic consultations, Kundli analysis, and personalised cosmic guidance.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="showPage('kundli')">Generate Free Kundli</button>
+          <button class="btn btn-secondary" onclick="showPage('astrologers')">Talk to Astrologer</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num" data-target="50000">0</div><div class="lbl">Consultations Done</div></div>
+          <div class="hero-stat"><div class="num" data-target="120">0</div><div class="lbl">Expert Astrologers</div></div>
+          <div class="hero-stat"><div class="num" data-target="98">0</div><div class="lbl">% Satisfaction</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <canvas id="zodiac-canvas" width="480" height="480"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section style="padding:5rem 2rem">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Why Choose Us</div>
+        <h2 class="section-title">Where Ancient Wisdom Meets Modern Trust</h2>
+        <p class="section-sub">We combine centuries of Vedic knowledge with a transparent, technology-driven platform you can trust completely.</p>
+      </div>
+      <div class="grid-4" style="margin-top:3rem">
+        <div class="card reveal"><div class="card-icon purple">☽</div><h3>Verified Experts</h3><p>Every astrologer undergoes a rigorous 3-stage screening process with live consultation tests and knowledge assessments.</p></div>
+        <div class="card reveal"><div class="card-icon gold">☀</div><h3>100% Authentic</h3><p>Pure Vedic, Jyotish, and KP methodologies. No guesswork. Every reading backed by your exact birth chart data.</p></div>
+        <div class="card reveal"><div class="card-icon purple">♄</div><h3>Private & Secure</h3><p>Your personal data and consultation history are encrypted and never shared with third parties under any circumstances.</p></div>
+        <div class="card reveal"><div class="card-icon gold">✦</div><h3>24/7 Availability</h3><p>Connect with an available astrologer any time of day or night. Cosmic timing waits for no one.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES OVERVIEW -->
+  <section style="background:linear-gradient(180deg,transparent,rgba(124,58,237,.05),transparent);padding:5rem 2rem">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Our Services</div>
+        <h2 class="section-title">Comprehensive Cosmic Guidance</h2>
+      </div>
+      <div class="grid-3" style="margin-top:3rem">
+        <div class="card reveal" style="cursor:pointer" onclick="showPage('services')">
+          <div class="card-icon gold">♈</div><h3>Kundli Analysis</h3>
+          <p>Detailed birth chart interpretation covering all 12 houses, planetary positions, Dasha periods, and life predictions.</p>
+          <div style="margin-top:1rem;color:var(--purple2);font-size:.85rem;font-weight:600">Explore &#8594;</div>
+        </div>
+        <div class="card reveal" style="cursor:pointer" onclick="showPage('services')">
+          <div class="card-icon purple">♡</div><h3>Marriage Compatibility</h3>
+          <p>Guna Milan, Manglik dosha analysis, and detailed compatibility reports for a blessed union.</p>
+          <div style="margin-top:1rem;color:var(--purple2);font-size:.85rem;font-weight:600">Explore &#8594;</div>
+        </div>
+        <div class="card reveal" style="cursor:pointer" onclick="showPage('services')">
+          <div class="card-icon gold">♃</div><h3>Career Astrology</h3>
+          <p>Identify your most auspicious career paths, promotion timings, and business opportunities through Vedic analysis.</p>
+          <div style="margin-top:1rem;color:var(--purple2);font-size:.85rem;font-weight:600">Explore &#8594;</div>
+        </div>
+      </div>
+      <div class="text-center" style="margin-top:2.5rem"><button class="btn btn-secondary" onclick="showPage('services')">View All 12 Services</button></div>
+    </div>
+  </section>
+
+  <!-- FEATURED ASTROLOGERS -->
+  <section style="padding:5rem 2rem">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Our Astrologers</div>
+        <h2 class="section-title">Meet Our Star Guides</h2>
+      </div>
+      <div class="grid-4" style="margin-top:3rem" id="home-astros"></div>
+      <div class="text-center" style="margin-top:2rem"><button class="btn btn-secondary" onclick="showPage('astrologers')">View All Astrologers</button></div>
+    </div>
+  </section>
+
+  <!-- DAILY HOROSCOPE PREVIEW -->
+  <section style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(212,160,23,.05));padding:5rem 2rem">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Daily Horoscope</div>
+        <h2 class="section-title">What the Stars Say Today</h2>
+      </div>
+      <div class="zodiac-grid" style="margin-top:2.5rem" id="home-zodiac"></div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section style="padding:5rem 2rem">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Testimonials</div>
+        <h2 class="section-title">Lives Transformed by the Stars</h2>
+      </div>
+      <div class="grid-3" style="margin-top:3rem" id="home-testimonials"></div>
+    </div>
+  </section>
+
+  <!-- BLOG PREVIEW -->
+  <section style="padding:5rem 2rem;background:linear-gradient(180deg,transparent,rgba(124,58,237,.05),transparent)">
+    <div class="container">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ Cosmic Insights</div>
+        <h2 class="section-title">From the Astrology Desk</h2>
+      </div>
+      <div class="grid-3" style="margin-top:3rem" id="home-blog"></div>
+      <div class="text-center" style="margin-top:2rem"><button class="btn btn-secondary" onclick="showPage('blog')">Read All Articles</button></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="padding:5rem 2rem">
+    <div class="container" style="max-width:800px">
+      <div class="text-center reveal">
+        <div class="section-tag">✦ FAQ</div>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+      <div style="margin-top:2.5rem" id="faq-list"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT CTA -->
+  <section style="padding:5rem 2rem">
+    <div class="container" style="text-align:center">
+      <div style="background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(212,160,23,.1));border:1px solid var(--border);border-radius:24px;padding:4rem 2rem" class="reveal">
+        <div class="section-tag" style="display:inline-flex">✦ Begin Your Journey</div>
+        <h2 class="section-title" style="margin:1rem 0">Ready to Discover Your Cosmic Path?</h2>
+        <p style="color:var(--gray);margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto">Book a personalised consultation with India's finest astrologers and receive guidance aligned with your unique celestial blueprint.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showPage('contact')">Book Consultation</button>
+          <button class="btn btn-secondary" onclick="showPage('services')">Explore Services</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" onclick="showPage('home')">
+          <div class="nav-logo-icon">✦</div>
+          <span class="nav-logo-text">Tathastu Astrology</span>
+        </div>
+        <p>Guiding Your Journey Through Cosmic Wisdom. India's most trusted Vedic astrology platform since 2018.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <a onclick="showPage('services')">Kundli Analysis</a>
+        <a onclick="showPage('services')">Marriage Compatibility</a>
+        <a onclick="showPage('services')">Career Astrology</a>
+        <a onclick="showPage('services')">Numerology</a>
+        <a onclick="showPage('services')">Tarot Reading</a>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <a onclick="showPage('astrologers')">Find Astrologers</a>
+        <a onclick="showPage('horoscope')">Daily Horoscope</a>
+        <a onclick="showPage('kundli')">Free Kundli</a>
+        <a onclick="showPage('pricing')">Pricing</a>
+        <a onclick="showPage('blog')">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a onclick="showPage('about')">About Us</a>
+        <a onclick="showPage('contact')">Contact</a>
+        <a>Privacy Policy</a>
+        <a>Terms of Service</a>
+        <a>Careers</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&#169; 2025 Tathastu Astrology. All rights reserved. | Crafted with cosmic precision in India.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- ABOUT PAGE -->
+<div id="page-about" class="page hidden">
+  <section style="padding:7rem 2rem 4rem">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-tag">✦ Our Story</div>
+        <h2 class="section-title">Born Under Auspicious Stars</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:2rem">
+          <div>
+            <p style="color:var(--gray);line-height:1.85;margin-bottom:1.25rem">Tathastu Astrology was founded in 2018 in New Delhi by Pandit Rajan Sharma, a third-generation Vedic astrologer with over 30 years of practice. Frustrated by the inaccessibility of authentic astrological guidance, he envisioned a platform where every seeker could connect with verified, trustworthy experts at any hour.</p>
+            <p style="color:var(--gray);line-height:1.85;margin-bottom:1.25rem">The name "Tathastu" — meaning "so be it" in Sanskrit — reflects our commitment to helping you manifest your highest potential through cosmic alignment and personalised wisdom.</p>
+            <p style="color:var(--gray);line-height:1.85">Today, we serve over 50,000 satisfied clients monthly across 20 countries, with a network of 120+ screened astrologers across Vedic, KP, Nadi, and Western traditions.</p>
+          </div>
+          <div>
+            <div style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(212,160,23,.1));border:1px solid var(--border);border-radius:20px;padding:2.5rem;text-align:center">
+              <div style="font-size:4rem;margin-bottom:1rem">✦</div>
+              <h3 style="font-size:1.3rem;margin-bottom:.75rem">Our Mission</h3>
+              <p style="color:var(--gray);font-size:.9rem;line-height:1.7">To make genuine Vedic wisdom accessible to every soul, bridging the gap between ancient cosmic knowledge and modern life challenges through technology and trust.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section style="padding:4rem 2rem;background:linear-gradient(180deg,transparent,rgba(124,58,237,.05),transparent)">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Our Team</div><h2 class="section-title">The Visionaries Behind Tathastu</h2></div>
+      <div class="grid-4" style="margin-top:3rem">
+        <div class="card reveal text-center">
+          <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--gold));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 1rem">RS</div>
+          <h3>Pandit Rajan Sharma</h3>
+          <p style="color:var(--gold2);font-size:.82rem;margin-bottom:.5rem">Founder & Chief Astrologer</p>
+          <p>35+ years in Vedic Jyotish. National award winner, author of 4 astrology books.</p>
+        </div>
+        <div class="card reveal text-center">
+          <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--purple2),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 1rem">PM</div>
+          <h3>Priya Mehta</h3>
+          <p style="color:var(--gold2);font-size:.82rem;margin-bottom:.5rem">CEO & Co-Founder</p>
+          <p>IIT Delhi alumna, ex-McKinsey consultant. Visionary behind Tathastu's technology platform.</p>
+        </div>
+        <div class="card reveal text-center">
+          <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--purple));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 1rem">AV</div>
+          <h3>Dr. Arjun Verma</h3>
+          <p style="color:var(--gold2);font-size:.82rem;margin-bottom:.5rem">Head of Astrologer Quality</p>
+          <p>PhD in Sanskrit, specialist in KP and Nadi astrology with 20 years of research experience.</p>
+        </div>
+        <div class="card reveal text-center">
+          <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--purple2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 1rem">SK</div>
+          <h3>Sneha Kapoor</h3>
+          <p style="color:var(--gold2);font-size:.82rem;margin-bottom:.5rem">Head of Customer Experience</p>
+          <p>Dedicated to ensuring every client receives compassionate, ethical, and life-changing guidance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section style="padding:4rem 2rem">
+    <div class="container" style="max-width:700px">
+      <div class="text-center reveal"><div class="section-tag">✦ Our Journey</div><h2 class="section-title">Six Years of Cosmic Growth</h2></div>
+      <div class="timeline" style="margin-top:3rem">
+        <div class="tl-item reveal"><div class="tl-year">2018</div><div class="tl-title">Founded in New Delhi</div><div class="tl-desc">Launched with 12 astrologers and a vision to democratise Vedic wisdom for modern seekers.</div></div>
+        <div class="tl-item reveal"><div class="tl-year">2019</div><div class="tl-title">10,000 Consultations Milestone</div><div class="tl-desc">Crossed 10,000 consultations and launched the AI-powered Kundli generation engine.</div></div>
+        <div class="tl-item reveal"><div class="tl-year">2020</div><div class="tl-title">Mobile App Launch & Series A</div><div class="tl-desc">Raised &#8377;8 Cr in Series A funding. Launched iOS and Android apps, reaching 25,000 users.</div></div>
+        <div class="tl-item reveal"><div class="tl-year">2022</div><div class="tl-title">International Expansion</div><div class="tl-desc">Expanded to 15 countries with multilingual support and an astrologer network of 80+ experts.</div></div>
+        <div class="tl-item reveal"><div class="tl-year">2024</div><div class="tl-title">50,000+ Monthly Consultations</div><div class="tl-desc">India's #1 rated astrology platform. 120+ verified astrologers. Serving 20 countries.</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- SERVICES PAGE -->
+<div id="page-services" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Our Services</div><h2 class="section-title">Comprehensive Cosmic Services</h2><p class="section-sub">From birth chart analysis to gemstone guidance — every service delivered by verified Vedic experts.</p></div>
+      <div class="grid-3" style="margin-top:3rem" id="services-grid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ASTROLOGERS PAGE -->
+<div id="page-astrologers" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Expert Astrologers</div><h2 class="section-title">Find Your Perfect Guide</h2></div>
+      <div class="search-bar" style="margin-top:2rem">
+        <input type="text" id="astro-search" placeholder="Search by name or expertise..." oninput="filterAstros()">
+        <select id="astro-filter" onchange="filterAstros()">
+          <option value="">All Specialisations</option>
+          <option>Vedic Astrology</option>
+          <option>KP Astrology</option>
+          <option>Numerology</option>
+          <option>Tarot</option>
+          <option>Vastu</option>
+        </select>
+        <select id="astro-sort" onchange="filterAstros()">
+          <option value="rating">Sort: Top Rated</option>
+          <option value="fee">Sort: Lowest Fee</option>
+          <option value="exp">Sort: Most Experienced</option>
+        </select>
+      </div>
+      <div class="grid-4" id="astro-grid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- HOROSCOPE PAGE -->
+<div id="page-horoscope" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Horoscope Center</div><h2 class="section-title">Your Daily Cosmic Forecast</h2><p class="section-sub">Select your sun sign to receive today's personalised cosmic reading.</p></div>
+      <div class="zodiac-grid" style="margin-top:2.5rem" id="horoscope-grid"></div>
+      <div class="horoscope-detail" id="horoscope-detail"></div>
+    </div>
+  </section>
+</div>
+
+<!-- KUNDLI PAGE -->
+<div id="page-kundli" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Free Kundli</div><h2 class="section-title">Generate Your Birth Chart</h2><p class="section-sub">Enter your birth details to receive a detailed Vedic Kundli report with planetary positions, Dasha periods, and life predictions.</p></div>
+      <div class="kundli-form reveal" style="margin-top:3rem">
+        <div class="form-group"><label>Full Name</label><input type="text" id="k-name" placeholder="Enter your full name"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Birth Date</label><input type="date" id="k-date"></div>
+          <div class="form-group"><label>Birth Time</label><input type="time" id="k-time"></div>
+        </div>
+        <div class="form-group"><label>Birth Place</label><input type="text" id="k-place" placeholder="City, State, Country"></div>
+        <div class="form-group"><label>Gender</label>
+          <select id="k-gender"><option>Male</option><option>Female</option><option>Other</option></select>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:.5rem" onclick="generateKundli()">Generate Free Kundli Report</button>
+      </div>
+      <div class="kundli-result" id="kundli-result">
+        <h3 style="font-size:1.2rem;margin-bottom:.5rem" id="k-result-name"></h3>
+        <p style="color:var(--gray);font-size:.85rem;margin-bottom:1.5rem" id="k-result-meta"></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;flex-wrap:wrap">
+          <div>
+            <h4 style="color:var(--gold2);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Planetary Positions</h4>
+            <table class="kundli-table" id="k-planets"></table>
+          </div>
+          <div>
+            <h4 style="color:var(--gold2);font-size:.85rem;margin-bottom:1rem;text-transform:uppercase;letter-spacing:.05em">Dasha Periods</h4>
+            <table class="kundli-table" id="k-dasha"></table>
+          </div>
+        </div>
+        <div style="margin-top:2rem;padding:1.5rem;background:rgba(124,58,237,.1);border:1px solid var(--border);border-radius:12px">
+          <h4 style="color:var(--gold2);margin-bottom:.75rem">Astrological Summary</h4>
+          <p id="k-summary" style="color:var(--gray);font-size:.9rem;line-height:1.75"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- BLOG PAGE -->
+<div id="page-blog" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Cosmic Insights</div><h2 class="section-title">The Astrology Knowledge Hub</h2></div>
+      <div class="search-bar" style="margin-top:2rem">
+        <input type="text" id="blog-search" placeholder="Search articles..." oninput="filterBlog()">
+        <select id="blog-cat" onchange="filterBlog()">
+          <option value="">All Categories</option>
+          <option>Vedic Astrology</option>
+          <option>Horoscope</option>
+          <option>Kundli</option>
+          <option>Remedies</option>
+          <option>Numerology</option>
+        </select>
+      </div>
+      <div class="grid-3" id="blog-grid"></div>
+    </div>
+  </section>
+</div>
+
+<!-- PRICING PAGE -->
+<div id="page-pricing" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Pricing</div><h2 class="section-title">Choose Your Cosmic Plan</h2><p class="section-sub">Transparent, flexible pricing for every seeker — from first-time explorers to devoted spiritual practitioners.</p></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;margin-top:3rem;max-width:1000px;margin-left:auto;margin-right:auto">
+        <div class="pricing-card reveal">
+          <div class="plan-name">Basic</div>
+          <div class="plan-price">&#8377;499<span>/month</span></div>
+          <div class="plan-desc">Perfect for those beginning their cosmic journey</div>
+          <ul class="plan-features">
+            <li>1 Kundli Generation</li>
+            <li>Daily Horoscope Access</li>
+            <li>2 Chat Consultations (15 min each)</li>
+            <li>Basic Compatibility Report</li>
+            <li>Email Support</li>
+          </ul>
+          <button class="btn btn-secondary" style="width:100%" onclick="openAuth()">Get Started</button>
+        </div>
+        <div class="pricing-card featured reveal">
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">&#8377;1,499<span>/month</span></div>
+          <div class="plan-desc">Ideal for regular seekers wanting deeper guidance</div>
+          <ul class="plan-features">
+            <li>5 Kundli Generations</li>
+            <li>Daily + Weekly + Monthly Horoscope</li>
+            <li>5 Video Consultations (30 min each)</li>
+            <li>Full Compatibility + Career Report</li>
+            <li>Gemstone Recommendations</li>
+            <li>Priority Support</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%" onclick="openAuth()">Get Started</button>
+        </div>
+        <div class="pricing-card reveal">
+          <div class="plan-name">Elite</div>
+          <div class="plan-price">&#8377;4,999<span>/month</span></div>
+          <div class="plan-desc">Complete cosmic guidance with unlimited access</div>
+          <ul class="plan-features">
+            <li>Unlimited Kundli Generations</li>
+            <li>All Horoscope Forecasts</li>
+            <li>Unlimited Consultations</li>
+            <li>Dedicated Senior Astrologer</li>
+            <li>All Reports + Remedies</li>
+            <li>Vastu + Numerology Included</li>
+            <li>24/7 Priority Support</li>
+          </ul>
+          <button class="btn btn-secondary" style="width:100%;border-color:var(--gold);color:var(--gold2)" onclick="openAuth()">Get Started</button>
+        </div>
+      </div>
+      <!-- Comparison -->
+      <div style="margin-top:4rem;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:500px">
+          <thead>
+            <tr style="background:rgba(124,58,237,.1)">
+              <th style="padding:1rem 1.25rem;text-align:left;font-size:.85rem;color:var(--gray)">Feature</th>
+              <th style="padding:1rem;text-align:center;font-size:.85rem;color:var(--gray)">Basic</th>
+              <th style="padding:1rem;text-align:center;font-size:.85rem;color:var(--gold2)">Premium</th>
+              <th style="padding:1rem;text-align:center;font-size:.85rem;color:var(--gray)">Elite</th>
+            </tr>
+          </thead>
+          <tbody id="pricing-compare"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CONTACT PAGE -->
+<div id="page-contact" class="page hidden">
+  <section style="padding:7rem 2rem 3rem">
+    <div class="container">
+      <div class="text-center reveal"><div class="section-tag">✦ Contact Us</div><h2 class="section-title">Connect with the Cosmos</h2></div>
+      <div class="contact-grid" style="margin-top:3rem">
+        <div class="contact-form reveal">
+          <h3 style="margin-bottom:1.5rem;font-size:1.15rem">Send a Message</h3>
+          <div class="form-row"><input type="text" id="c-name" placeholder="Full Name"><input type="email" id="c-email" placeholder="Email Address"></div>
+          <select id="c-service" style="width:100%;padding:.75rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.9rem;outline:none;margin-bottom:1rem">
+            <option value="">Select Service</option>
+            <option>Kundli Analysis</option>
+            <option>Marriage Compatibility</option>
+            <option>Career Astrology</option>
+            <option>General Enquiry</option>
+          </select>
+          <textarea id="c-msg" placeholder="Your message..."></textarea>
+          <button class="btn btn-primary" onclick="submitContact()">Send Message</button>
+        </div>
+        <div class="reveal">
+          <h3 style="margin-bottom:1.5rem;font-size:1.15rem">Get in Touch</h3>
+          <div class="contact-info-item"><div class="contact-icon">&#x1F4CD;</div><div><div style="font-weight:600;margin-bottom:.25rem">Our Office</div><div style="color:var(--gray);font-size:.88rem">42, Cosmic Tower, Connaught Place<br>New Delhi — 110001, India</div></div></div>
+          <div class="contact-info-item"><div class="contact-icon">&#x260E;</div><div><div style="font-weight:600;margin-bottom:.25rem">Phone</div><div style="color:var(--gray);font-size:.88rem">+91 98765 43210<br>Mon–Sun, 6 AM – 11 PM IST</div></div></div>
+          <div class="contact-info-item"><div class="contact-icon">&#x2709;</div><div><div style="font-weight:600;margin-bottom:.25rem">Email</div><div style="color:var(--gray);font-size:.88rem">support@tathastu.in<br>hello@tathastu.in</div></div></div>
+          <div class="map-ph" style="margin-top:1.5rem">&#x1F5FA;</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- USER DASHBOARD -->
+<div id="page-user-dashboard" class="page hidden">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+        <div style="font-size:.75rem;color:var(--gray);text-transform:uppercase;letter-spacing:.08em">User Portal</div>
+        <div style="font-weight:700;margin-top:.2rem">Rahul Gupta</div>
+      </div>
+      <div class="sidebar-item active" onclick="showDashSection('dash-overview','user')"><span class="icon">&#9733;</span>Dashboard</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-profile','user')"><span class="icon">&#9786;</span>My Profile</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-consultations','user')"><span class="icon">&#128337;</span>Consultations</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-kundli','user')"><span class="icon">&#9737;</span>Saved Kundli</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-horoscope-d','user')"><span class="icon">&#9684;</span>Horoscope Feed</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-appointments','user')"><span class="icon">&#128197;</span>Appointments</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-wallet','user')"><span class="icon">&#128184;</span>Wallet</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-notifications','user')"><span class="icon">&#128276;</span>Notifications</div>
+      <div class="sidebar-item" onclick="showDashSection('dash-settings-u','user')"><span class="icon">&#9881;</span>Settings</div>
+      <div class="sidebar-item" style="margin-top:1rem;color:#f87171" onclick="logout()"><span class="icon">&#10006;</span>Logout</div>
+    </div>
+    <div class="dash-content" id="user-dash-content"></div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="page-admin-dashboard" class="page hidden">
+  <div class="dashboard">
+    <div class="sidebar">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:.5rem">
+        <div style="font-size:.75rem;color:var(--gold2);text-transform:uppercase;letter-spacing:.08em">Admin Panel</div>
+        <div style="font-weight:700;margin-top:.2rem">Administrator</div>
+      </div>
+      <div class="sidebar-item active" onclick="showDashSection('admin-overview','admin')"><span class="icon">&#9733;</span>Overview</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-analytics','admin')"><span class="icon">&#128200;</span>Analytics</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-users','admin')"><span class="icon">&#128101;</span>User Management</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-astrologers','admin')"><span class="icon">&#10024;</span>Astrologers</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-consultations','admin')"><span class="icon">&#128338;</span>Consultations</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-blog','admin')"><span class="icon">&#128221;</span>Blog Management</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-reports','admin')"><span class="icon">&#128202;</span>Reports</div>
+      <div class="sidebar-item" onclick="showDashSection('admin-settings','admin')"><span class="icon">&#9881;</span>Settings</div>
+      <div class="sidebar-item" style="margin-top:1rem;color:#f87171" onclick="logout()"><span class="icon">&#10006;</span>Logout</div>
+    </div>
+    <div class="dash-content" id="admin-dash-content"></div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const ASTROLOGERS=[
+  {id:1,name:'Pandit Rajan Sharma',init:'RS',exp:35,spec:'Vedic Jyotish',rating:4.9,fee:800,langs:['Hindi','English','Sanskrit'],reviews:2847},
+  {id:2,name:'Dr. Meena Devi',init:'MD',exp:22,spec:'KP Astrology',rating:4.8,fee:600,langs:['Hindi','English'],reviews:1923},
+  {id:3,name:'Acharya Deepak Joshi',init:'DJ',exp:18,spec:'Nadi Astrology',rating:4.7,fee:500,langs:['Hindi','Marathi'],reviews:1456},
+  {id:4,name:'Swami Anand Puri',init:'AP',exp:30,spec:'Numerology',rating:4.9,fee:700,langs:['Hindi','English','Bengali'],reviews:3102},
+  {id:5,name:'Jyotish Priya Nair',init:'PN',exp:15,spec:'Tarot & Astrology',rating:4.6,fee:450,langs:['Malayalam','English'],reviews:987},
+  {id:6,name:'Pt. Vikram Tiwari',init:'VT',exp:25,spec:'Vastu Shastra',rating:4.8,fee:650,langs:['Hindi','English'],reviews:1674},
+  {id:7,name:'Neha Shastri',init:'NS',exp:12,spec:'Western Astrology',rating:4.5,fee:400,langs:['English','Hindi'],reviews:743},
+  {id:8,name:'Guru Ramesh Bhat',init:'RB',exp:40,spec:'Vedic & Palmistry',rating:5.0,fee:1200,langs:['Kannada','Hindi','English'],reviews:4201},
+];
+const ZODIAC=[
+  {sym:'♈',name:'Aries',dates:'Mar 21 – Apr 19',el:'Fire',lord:'Mars',today:'Your energy surges with cosmic fire today. Mars activates your 3rd house, making this an excellent day for bold communication, short travels, and launching creative ventures. Financially, a delayed payment may finally arrive.'},
+  {sym:'♉',name:'Taurus',dates:'Apr 20 – May 20',el:'Earth',lord:'Venus',today:'Venus blesses your relationships today. Focus on partnerships and financial planning. An unexpected opportunity in your professional sphere demands immediate attention. Avoid impulsive spending in the evening.'},
+  {sym:'♊',name:'Gemini',dates:'May 21 – Jun 20',el:'Air',lord:'Mercury',today:'Mercury, your lord, forms a beautiful trine with Jupiter today. Information flows freely — ideal for negotiations, writing, and connecting with influential people. Health: avoid overexertion.'},
+  {sym:'♋',name:'Cancer',dates:'Jun 21 – Jul 22',el:'Water',lord:'Moon',today:'The Moon illuminates your 4th house. Home and family matters take centre stage. An emotional conversation with a loved one brings long-awaited clarity. Property-related news is favourable.'},
+  {sym:'♌',name:'Leo',dates:'Jul 23 – Aug 22',el:'Fire',lord:'Sun',today:'The Sun in your 5th house ignites your creative genius. Children, romance, and artistic endeavours are blessed. A speculative investment decision should be approached carefully today.'},
+  {sym:'♍',name:'Virgo',dates:'Aug 23 – Sep 22',el:'Earth',lord:'Mercury',today:'Saturn\'s discipline supports your work today. Health improvements are notable. A routine task yields an unexpectedly significant result. Evening is auspicious for spiritual practices.'},
+  {sym:'♎',name:'Libra',dates:'Sep 23 – Oct 22',el:'Air',lord:'Venus',today:'Venus and Jupiter co-operate beautifully in your chart today. Partnerships flourish, social invitations arrive, and your charm is at its peak. Legal matters move in your favour.'},
+  {sym:'♏',name:'Scorpio',dates:'Oct 23 – Nov 21',el:'Water',lord:'Mars',today:'Deep transformation is underway. Pluto activates hidden strengths. Research, investigation, and occult studies yield profound insights. Financial inheritance or joint wealth matters progress positively.'},
+  {sym:'♐',name:'Sagittarius',dates:'Nov 22 – Dec 21',el:'Fire',lord:'Jupiter',today:'Jupiter, your lord, bestows wisdom and expansion. Travel, higher education, and spiritual growth are highlighted. International connections bring opportunities. Stay grounded in commitments.'},
+  {sym:'♑',name:'Capricorn',dates:'Dec 22 – Jan 19',el:'Earth',lord:'Saturn',today:'Saturn rewards your persistent efforts. Career advancement is imminent. A senior colleague or mentor plays a key role today. Avoid overworking — rest is equally productive now.'},
+  {sym:'♒',name:'Aquarius',dates:'Jan 20 – Feb 18',el:'Air',lord:'Saturn',today:'Uranus sparks innovation in your thinking. Technology, community projects, and humanitarian causes are blessed. Friendships deepen. An unexpected idea today may become your greatest success.'},
+  {sym:'♓',name:'Pisces',dates:'Feb 19 – Mar 20',el:'Water',lord:'Jupiter',today:'Neptune heightens your intuition to extraordinary levels. Trust your inner voice. Creative arts, spirituality, and healing are powerfully supported. Dreams tonight carry significant messages.'},
+];
+const SERVICES=[
+  {icon:'♈',name:'Kundli Analysis',desc:'Comprehensive birth chart reading covering all 12 houses, planetary positions, aspects, and life trajectory across all domains including career, relationships, health, and spirituality.',benefits:['Complete house-by-house analysis','Planetary strength assessment','Dasha & Antardasha predictions','Annual Varshaphal report'],price:'₹999',per:'per session'},
+  {icon:'♡',name:'Marriage Compatibility',desc:'In-depth Guna Milan analysis with 36-point compatibility assessment, Manglik dosha evaluation, and detailed predictions for marital harmony, timing, and long-term compatibility.',benefits:['36 Guna Milan report','Manglik dosha analysis','Best marriage muhurta','5-year relationship forecast'],price:'₹1,499',per:'per couple'},
+  {icon:'♃',name:'Career Astrology',desc:'Unlock your highest professional potential through planetary analysis of your 10th, 6th, and 2nd houses. Identify ideal career paths, promotion timing, and business success periods.',benefits:['Career path identification','Job change timing','Business launch muhurta','Promotion period prediction'],price:'₹1,199',per:'per session'},
+  {icon:'♄',name:'Business Astrology',desc:'Make your business decisions with cosmic confidence. Understand auspicious timing for launches, partnerships, expansions, and major financial decisions.',benefits:['Business launch muhurta','Partnership compatibility','Financial period analysis','Name numerology for business'],price:'₹2,499',per:'per session'},
+  {icon:'⊕',name:'Numerology',desc:'Your name and birth date carry vibrational frequencies that shape your destiny. Our numerologists decode your life path, expression, and soul urge numbers for deep self-understanding.',benefits:['Life path number analysis','Name correction guidance','Lucky numbers & dates','Annual forecast'],price:'₹799',per:'per report'},
+  {icon:'⊗',name:'Tarot Reading',desc:'78 archetypal cards channelled by intuitive readers who weave cosmic symbols with your specific questions for profound clarity on past, present, and future situations.',benefits:['Celtic cross spread','Relationship spreads','Career & finance spreads','Monthly forecast spread'],price:'₹699',per:'per session'},
+  {icon:'☾',name:'Horoscope Reading',desc:'Daily, weekly, monthly, and annual horoscope readings prepared specifically for your sun, moon, and rising signs by expert astrologers using your precise birth chart.',benefits:['Personalised daily horoscope','Planetary transit alerts','Retrograde impact analysis','Annual Dasha overview'],price:'₹499',per:'per month'},
+  {icon:'✋',name:'Palm Reading',desc:'Palmistry, or Hasta Rekha Shastra, reveals the story written in the lines of your hand. Our expert palmists interpret life line, fate line, heart line, and 32 major markings.',benefits:['Full hand analysis','Life & fate line reading','Health indicators','Talent & success markers'],price:'₹899',per:'per session'},
+  {icon:'♦',name:'Gemstone Guidance',desc:'Wear the right gemstone to amplify positive planetary energies and shield against malefic influences. Our recommendations are based on your personalised Kundli analysis.',benefits:['Personalised gemstone report','Wearing procedure guidance','Metal & finger specification','Quality & source guidance'],price:'₹599',per:'per report'},
+  {icon:'⌂',name:'Vastu Consultation',desc:'Transform your living and working spaces by aligning them with the five elements and cardinal directions. Vastu corrections bring prosperity, health, and harmony to your environment.',benefits:['Home Vastu analysis','Office Vastu consultation','Remedies without demolition','Room-by-room guidance'],price:'₹3,999',per:'per visit'},
+  {icon:'☿',name:'Health Astrology',desc:'Identify periods of health vulnerability and implement astrological preventive measures. Our health astrology service complements medical care with planetary health insights.',benefits:['Health-prone period alerts','Effective remedy timing','Dietary recommendations','Mental wellness guidance'],price:'₹1,099',per:'per session'},
+  {icon:'☊',name:'Relationship Guidance',desc:'Whether navigating romance, family, or professional relationships, our astrologers help you understand the karmic patterns that attract certain people into your life.',benefits:['Synastry chart analysis','Karmic relationship patterns','Communication style insights','Timing for relationship decisions'],price:'₹1,299',per:'per session'},
+];
+const TESTIMONIALS=[
+  {text:'Pandit Rajan\'s Kundli analysis was the most accurate reading I have ever experienced. He predicted my job change to the month, and his career guidance completely transformed my professional life.',name:'Ananya Singh',loc:'Gurugram, Haryana',rating:5},
+  {text:'I was sceptical at first, but Dr. Meena\'s compatibility report for my marriage was remarkably precise. The dosha analysis and remedies she suggested brought genuine harmony to our relationship.',name:'Rajiv & Pooja Kapoor',loc:'Mumbai, Maharashtra',rating:5},
+  {text:'The Vastu consultation for our new office was exceptional. Within three months of implementing the corrections, our revenue grew 40%. Tathastu has become our trusted cosmic advisor.',name:'Manish Agarwal',loc:'Ahmedabad, Gujarat',rating:5},
+  {text:'I connected with Tathastu during the most difficult period of my life. The astrological guidance I received gave me clarity, hope, and a concrete action plan. Truly life-changing service.',name:'Kavya Nair',loc:'Kochi, Kerala',rating:5},
+  {text:'The numerology report was incredibly insightful. After the name correction suggestion, my career momentum shifted dramatically. The team is professional, empathetic, and genuinely knowledgeable.',name:'Saurabh Jain',loc:'Jaipur, Rajasthan',rating:5},
+  {text:'Guru Ramesh\'s palm reading session was mesmerising. He identified health patterns and relationship dynamics I had never discussed with anyone. His remedies are practical and effective.',name:'Tanu Verma',loc:'Lucknow, Uttar Pradesh',rating:5},
+];
+const BLOG_POSTS=[
+  {cat:'Vedic Astrology',icon:'✦',title:'Understanding Your Lagna: The Ascendant and Its Profound Impact on Destiny',date:'Dec 14, 2024',author:'Pt. Rajan Sharma',read:'8 min read',body:'The Lagna, or Ascendant, is the zodiac sign rising on the eastern horizon at the exact moment of your birth. It forms the first house of your Kundli and is perhaps the single most important indicator of your physical appearance, personality, approach to life, and overall destiny...'},
+  {cat:'Horoscope',icon:'☀',title:'Jupiter Transit 2025: What Every Zodiac Sign Must Know Before April',date:'Dec 10, 2024',author:'Dr. Meena Devi',read:'6 min read',body:'Jupiter, the planet of wisdom, expansion, and divine grace, is preparing for its most significant transit of the decade in April 2025. Moving from Aries into Taurus, this shift will profoundly impact finances, agriculture, and material prosperity across all 12 signs...'},
+  {cat:'Kundli',icon:'♄',title:'Sade Sati Explained: Saturn\'s Seven-Year Cycle and How to Navigate It',date:'Dec 5, 2024',author:'Acharya Deepak Joshi',read:'10 min read',body:'Sade Sati — the seven-and-a-half-year period of Saturn\'s transit through the 12th, 1st, and 2nd houses from your natal moon — is one of the most discussed and feared astrological phenomena in Vedic astrology. But is it truly a period of suffering?...'},
+  {cat:'Remedies',icon:'☾',title:'Powerful Remedies for Malefic Rahu: Ancient Solutions for Modern Problems',date:'Nov 28, 2024',author:'Swami Anand Puri',read:'7 min read',body:'Rahu, the North Node of the Moon, represents worldly desires, illusions, and karmic obsessions. When afflicted in a birth chart or during its Mahadasha, it can create confusion, sudden upheavals, and inexplicable anxieties. Here are eight time-tested remedies...'},
+  {cat:'Numerology',icon:'⊕',title:'Your Life Path Number: Decoding the Blueprint of Your Soul\'s Journey',date:'Nov 20, 2024',author:'Swami Anand Puri',read:'5 min read',body:'Numerology reveals that your birth date carries a precise vibrational frequency — your Life Path Number — that describes your character, strengths, challenges, and the overarching theme of your life\'s journey. Discover how to calculate and interpret this number...'},
+  {cat:'Vedic Astrology',icon:'♃',title:'The 9 Planets in Vedic Astrology: Roles, Significations, and Their Karmic Lessons',date:'Nov 15, 2024',author:'Pt. Rajan Sharma',read:'12 min read',body:'In Jyotish, the nine Navagrahas — the Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu, and Ketu — represent fundamental cosmic forces that shape human experience. Each planet governs specific domains of life and carries both blessings and challenges...'},
+];
+const FAQ_DATA=[
+  {q:'How are Tathastu\'s astrologers verified?',a:'Every astrologer undergoes a three-stage vetting process: document verification, a written knowledge assessment covering Vedic or KP methodology, and a live practice consultation evaluated by our senior panel. Only top-performing candidates are approved.'},
+  {q:'Is my consultation completely confidential?',a:'Absolute confidentiality is guaranteed. Your personal details and consultation recordings are encrypted with AES-256 and never shared with third parties. Even our support staff cannot access the content of your consultations.'},
+  {q:'Can I get a refund if I am unsatisfied?',a:'Yes. We offer a 100% refund guarantee for first-time consultations if you are not satisfied within 5 minutes of the session. For subsequent consultations, our support team evaluates cases individually with fairness.'},
+  {q:'How accurate is the free Kundli generator?',a:'Our Kundli generator uses standard Vedic calculation algorithms with Swiss Ephemeris data for precise planetary positions. The free report provides a solid foundation; a full interpretation requires consultation with an astrologer.'},
+  {q:'What is the difference between Vedic and Western astrology?',a:'Vedic astrology (Jyotish) uses the sidereal zodiac based on the actual star positions, while Western astrology uses the tropical zodiac. Vedic astrology also incorporates the Moon sign and rising sign more prominently and includes the Dasha predictive system not found in Western practice.'},
+  {q:'How do I choose the right astrologer for my question?',a:'Filter astrologers by their specialisation on our directory page. For career and life path questions, choose a Vedic Jyotish expert. For relationship matters, a compatibility specialist is ideal. For quick answers, KP astrologers are highly recommended.'},
+];
+const COMPARE_ROWS=[
+  ['Kundli Generations','1','5','Unlimited'],
+  ['Daily Horoscope','Yes','Yes','Yes'],
+  ['Weekly Horoscope','No','Yes','Yes'],
+  ['Monthly Forecast','No','Yes','Yes'],
+  ['Video Consultations','2 (15 min)','5 (30 min)','Unlimited'],
+  ['Career Report','No','Yes','Yes'],
+  ['Compatibility Report','Basic','Full','Full + Detailed'],
+  ['Gemstone Guidance','No','Yes','Yes'],
+  ['Vastu Consultation','No','No','Yes'],
+  ['Dedicated Astrologer','No','No','Yes'],
+  ['Support','Email','Priority','24/7 Dedicated'],
+];
+
+// ===== STATE =====
+let currentPage='home';
+let authTab='user';
+let currentUser=null;
+let dashSection={user:'dash-overview',admin:'admin-overview'};
+
+// ===== INIT =====
+window.addEventListener('load',()=>{
+  initStars();
+  initZodiacWheel();
+  renderHomeAstros();
+  renderHomeZodiac();
+  renderHomeTestimonials();
+  renderHomeBlog();
+  renderFAQ();
+  renderServices();
+  renderAstroGrid(ASTROLOGERS);
+  renderHoroscopeGrid();
+  renderBlogGrid(BLOG_POSTS);
+  renderPricingCompare();
+  initScrollReveal();
+  animateCounters();
+});
+
+// ===== STARS =====
+function initStars(){
+  const c=document.getElementById('stars-canvas');
+  const ctx=c.getContext('2d');
+  let W=c.width=window.innerWidth,H=c.height=window.innerHeight;
+  const stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.3,a:Math.random(),da:(.002+Math.random()*.003)*(Math.random()<.5?1:-1),s:Math.random()*2}));
+  window.addEventListener('resize',()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    stars.forEach(s=>{
+      s.a+=s.da;if(s.a>1||s.a<0)s.da*=-1;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,240,180,${s.a})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== ZODIAC WHEEL =====
+function initZodiacWheel(){
+  const c=document.getElementById('zodiac-canvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  const W=480,H=480,cx=W/2,cy=H/2;
+  let angle=0;
+  const syms='♈♉♊♋♌♍♎♏♐♑♒♓'.split('');
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // Outer glow ring
+    const grad=ctx.createRadialGradient(cx,cy,140,cx,cy,230);
+    grad.addColorStop(0,'rgba(124,58,237,.05)');
+    grad.addColorStop(.5,'rgba(124,58,237,.15)');
+    grad.addColorStop(1,'rgba(124,58,237,.02)');
+    ctx.beginPath();ctx.arc(cx,cy,220,0,Math.PI*2);
+    ctx.fillStyle=grad;ctx.fill();
+    // Ring
+    ctx.beginPath();ctx.arc(cx,cy,200,0,Math.PI*2);
+    ctx.strokeStyle='rgba(124,58,237,.3)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,150,0,Math.PI*2);
+    ctx.strokeStyle='rgba(212,160,23,.2)';ctx.lineWidth=1;ctx.stroke();
+    // Zodiac symbols
+    syms.forEach((s,i)=>{
+      const a=angle+i*(Math.PI*2/12);
+      const x=cx+175*Math.cos(a),y=cy+175*Math.sin(a);
+      ctx.font='20px serif';ctx.fillStyle='rgba(240,192,64,.85)';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(s,x,y);
+      // Spoke
+      const ix=cx+155*Math.cos(a),iy=cy+155*Math.sin(a);
+      const ox=cx+148*Math.cos(a),oy=cy+148*Math.sin(a);
+      ctx.beginPath();ctx.moveTo(ix,iy);ctx.lineTo(ox,oy);
+      ctx.strokeStyle='rgba(212,160,23,.3)';ctx.lineWidth=1;ctx.stroke();
+    });
+    // Centre
+    const cgrad=ctx.createRadialGradient(cx,cy,0,cx,cy,60);
+    cgrad.addColorStop(0,'rgba(212,160,23,.25)');
+    cgrad.addColorStop(1,'rgba(124,58,237,.1)');
+    ctx.beginPath();ctx.arc(cx,cy,55,0,Math.PI*2);
+    ctx.fillStyle=cgrad;ctx.fill();
+    ctx.font='bold 28px serif';ctx.fillStyle='rgba(240,192,64,.9)';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('✦',cx,cy);
+    // Constellation dots
+    for(let i=0;i<40;i++){
+      const a2=angle*0.3+i*(Math.PI*2/40);
+      const r=90+30*Math.sin(i*1.7);
+      const x=cx+r*Math.cos(a2),y=cy+r*Math.sin(a2);
+      ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,240,180,.5)';ctx.fill();
+    }
+    angle+=.004;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== COUNTERS =====
+function animateCounters(){
+  document.querySelectorAll('[data-target]').forEach(el=>{
+    const target=parseInt(el.dataset.target);
+    let current=0;
+    const step=target/60;
+    const interval=setInterval(()=>{
+      current=Math.min(current+step,target);
+      el.textContent=current>=1000?Math.round(current).toLocaleString('en-IN')+'+':Math.round(current)+(el.dataset.target=='98'?'%':'+');
+      if(current>=target)clearInterval(interval);
+    },25);
+  });
+}
+
+// ===== SCROLL REVEAL =====
+function initScrollReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+
+// ===== RENDER FUNCTIONS =====
+function renderHomeAstros(){
+  const el=document.getElementById('home-astros');
+  if(!el)return;
+  el.innerHTML=ASTROLOGERS.slice(0,4).map(a=>astroCard(a)).join('');
+}
+function astroCard(a){
+  return`<div class="astro-card reveal">
+    <div class="astro-avatar">${a.init}</div>
+    <div class="astro-name">${a.name}</div>
+    <div class="astro-exp">${a.spec} &bull; ${a.exp} yrs exp</div>
+    <div class="stars">${'&#9733;'.repeat(Math.floor(a.rating))} ${a.rating}</div>
+    <div class="astro-fee">&#8377;${a.fee}/session</div>
+    <div class="astro-langs">${a.langs.map(l=>`<span class="tag">${l}</span>`).join('')}</div>
+    <div class="astro-body"><button class="btn btn-primary" style="width:100%;padding:.55rem" onclick="openAuth()">Consult Now</button></div>
+  </div>`;
+}
+function renderHomeZodiac(){
+  const el=document.getElementById('home-zodiac');
+  if(!el)return;
+  el.innerHTML=ZODIAC.map(z=>`<div class="zodiac-card" onclick="showPage('horoscope')"><div class="zodiac-symbol">${z.sym}</div><div class="zodiac-name">${z.name}</div><div class="zodiac-dates">${z.dates}</div></div>`).join('');
+}
+function renderHomeTestimonials(){
+  const el=document.getElementById('home-testimonials');
+  if(!el)return;
+  el.innerHTML=TESTIMONIALS.slice(0,3).map(t=>`<div class="testimonial reveal">
+    <div class="stars">${'&#9733;'.repeat(t.rating)}</div>
+    <div class="testi-text">"${t.text}"</div>
+    <div class="testi-author">
+      <div class="testi-avatar">${t.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div><div class="testi-name">${t.name}</div><div class="testi-loc">${t.loc}</div></div>
+    </div>
+  </div>`).join('');
+}
+function renderHomeBlog(){
+  const el=document.getElementById('home-blog');
+  if(!el)return;
+  el.innerHTML=BLOG_POSTS.slice(0,3).map(b=>blogCard(b)).join('');
+}
+function blogCard(b){
+  return`<div class="blog-card reveal" onclick="showPage('blog')">
+    <div class="blog-img">${b.icon}</div>
+    <div class="blog-body">
+      <div class="blog-cat">${b.cat}</div>
+      <div class="blog-title">${b.title}</div>
+      <div class="blog-meta">${b.author} &bull; ${b.date} &bull; ${b.read}</div>
+    </div>
+  </div>`;
+}
+function renderFAQ(){
+  const el=document.getElementById('faq-list');
+  if(!el)return;
+  el.innerHTML=FAQ_DATA.map((f,i)=>`<div class="faq-item" id="faq-${i}">
+    <div class="faq-q" onclick="toggleFaq(${i})"><span>${f.q}</span><span class="arrow">&#9660;</span></div>
+    <div class="faq-a">${f.a}</div>
+  </div>`).join('');
+}
+function toggleFaq(i){
+  const el=document.getElementById('faq-'+i);
+  el.classList.toggle('open');
+}
+function renderServices(){
+  const el=document.getElementById('services-grid');
+  if(!el)return;
+  el.innerHTML=SERVICES.map(s=>`<div class="service-card reveal">
+    <div class="service-header"><div class="icon">${s.icon}</div><h3>${s.name}</h3></div>
+    <div class="service-body">
+      <p>${s.desc}</p>
+      <div style="margin-bottom:1rem">${s.benefits.map(b=>`<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;font-size:.82rem;color:var(--gray)"><span style="color:var(--gold2)">&#10003;</span>${b}</div>`).join('')}</div>
+      <div class="service-price"><span class="amt">${s.price}</span><span class="per">${s.per}</span></div>
+      <button class="btn-sm" onclick="openAuth()">Book Now</button>
+    </div>
+  </div>`).join('');
+}
+function renderAstroGrid(list){
+  const el=document.getElementById('astro-grid');
+  if(!el)return;
+  el.innerHTML=list.map(a=>astroCard(a)).join('');
+}
+function filterAstros(){
+  const q=(document.getElementById('astro-search')||{}).value?.toLowerCase()||'';
+  const f=(document.getElementById('astro-filter')||{}).value||'';
+  const s=(document.getElementById('astro-sort')||{}).value||'rating';
+  let list=ASTROLOGERS.filter(a=>{
+    const matchQ=!q||(a.name.toLowerCase().includes(q)||a.spec.toLowerCase().includes(q));
+    const matchF=!f||a.spec.includes(f);
+    return matchQ&&matchF;
+  });
+  if(s==='fee')list=[...list].sort((a,b)=>a.fee-b.fee);
+  else if(s==='exp')list=[...list].sort((a,b)=>b.exp-a.exp);
+  else list=[...list].sort((a,b)=>b.rating-a.rating);
+  renderAstroGrid(list);
+}
+function renderHoroscopeGrid(){
+  const el=document.getElementById('horoscope-grid');
+  if(!el)return;
+  el.innerHTML=ZODIAC.map((z,i)=>`<div class="zodiac-card" onclick="showHoroscope(${i})"><div class="zodiac-symbol">${z.sym}</div><div class="zodiac-name">${z.name}</div><div class="zodiac-dates">${z.dates}</div><div style="font-size:.75rem;color:var(--purple2);margin-top:.25rem">${z.el} &bull; ${z.lord}</div></div>`).join('');
+}
+function showHoroscope(i){
+  document.querySelectorAll('#horoscope-grid .zodiac-card').forEach((c,j)=>c.classList.toggle('active',j===i));
+  const z=ZODIAC[i];
+  const el=document.getElementById('horoscope-detail');
+  el.classList.add('show');
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem">
+    <div style="font-size:3rem">${z.sym}</div>
+    <div><h3 style="font-size:1.3rem;font-weight:700">${z.name}</h3><p style="color:var(--gray);font-size:.85rem">${z.dates} &bull; ${z.el} Sign &bull; Ruled by ${z.lord}</p></div>
+  </div>
+  <div style="background:rgba(124,58,237,.08);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem">
+    <div style="font-size:.8rem;color:var(--gold2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Today's Reading</div>
+    <p style="color:var(--gray);line-height:1.8">${z.today}</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+    <div style="text-align:center;padding:1rem;background:var(--deep);border-radius:10px"><div style="color:var(--gold2);font-weight:700">Love</div><div style="color:var(--gray);font-size:.85rem;margin-top:.25rem">${['Excellent','Good','Moderate','Very Good','Excellent'][i%5]}</div></div>
+    <div style="text-align:center;padding:1rem;background:var(--deep);border-radius:10px"><div style="color:var(--gold2);font-weight:700">Career</div><div style="color:var(--gray);font-size:.85rem;margin-top:.25rem">${['Good','Excellent','Good','Moderate','Very Good'][i%5]}</div></div>
+    <div style="text-align:center;padding:1rem;background:var(--deep);border-radius:10px"><div style="color:var(--gold2);font-weight:700">Health</div><div style="color:var(--gray);font-size:.85rem;margin-top:.25rem">${['Moderate','Very Good','Excellent','Good','Moderate'][i%5]}</div></div>
+  </div>`;
+}
+function renderBlogGrid(list){
+  const el=document.getElementById('blog-grid');
+  if(!el)return;
+  el.innerHTML=list.map(b=>blogCard(b)).join('');
+}
+function filterBlog(){
+  const q=(document.getElementById('blog-search')||{}).value?.toLowerCase()||'';
+  const cat=(document.getElementById('blog-cat')||{}).value||'';
+  const list=BLOG_POSTS.filter(b=>(!q||(b.title.toLowerCase().includes(q)||b.body.toLowerCase().includes(q)))&&(!cat||b.cat===cat));
+  renderBlogGrid(list);
+}
+function renderPricingCompare(){
+  const el=document.getElementById('pricing-compare');
+  if(!el)return;
+  el.innerHTML=COMPARE_ROWS.map(r=>`<tr>
+    <td style="padding:.7rem 1.25rem;font-size:.85rem;color:var(--gray)">${r[0]}</td>
+    <td style="padding:.7rem;text-align:center;font-size:.85rem">${r[1]==='Yes'?'<span style="color:#4ade80">&#10003;</span>':r[1]==='No'?'<span style="color:rgba(156,163,175,.4)">&#10007;</span>':r[1]}</td>
+    <td style="padding:.7rem;text-align:center;font-size:.85rem;color:var(--gold2)">${r[2]==='Yes'?'<span style="color:#4ade80">&#10003;</span>':r[2]==='No'?'<span style="color:rgba(156,163,175,.4)">&#10007;</span>':r[2]}</td>
+    <td style="padding:.7rem;text-align:center;font-size:.85rem">${r[3]==='Yes'?'<span style="color:#4ade80">&#10003;</span>':r[3]==='No'?'<span style="color:rgba(156,163,175,.4)">&#10007;</span>':r[3]}</td>
+  </tr>`).join('');
+}
+
+// ===== PAGE NAV =====
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('page-'+page).classList.remove('hidden');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  const navMap={home:0,about:1,services:2,astrologers:3,horoscope:4,kundli:5,blog:6,pricing:7,contact:8};
+  const navLinks=document.querySelectorAll('.nav-link');
+  if(navMap[page]!==undefined)navLinks[navMap[page]]?.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  currentPage=page;
+  setTimeout(initScrollReveal,100);
+  if(page==='user-dashboard')renderUserDash(dashSection.user||'dash-overview');
+  if(page==='admin-dashboard')renderAdminDash(dashSection.admin||'admin-overview');
+}
+function toggleMenu(){
+  document.getElementById('nav-links').classList.toggle('open');
+}
+function closeMenu(){
+  document.getElementById('nav-links').classList.remove('open');
+}
+
+// ===== AUTH =====
+function openAuth(){document.getElementById('auth-overlay').classList.remove('hidden')}
+function closeAuth(){document.getElementById('auth-overlay').classList.add('hidden')}
+function switchTab(t){
+  authTab=t;
+  document.getElementById('tab-user').classList.toggle('active',t==='user');
+  document.getElementById('tab-admin').classList.toggle('active',t==='admin');
+  document.getElementById('auth-hint-user').classList.toggle('hidden',t!=='user');
+  document.getElementById('auth-hint-admin').classList.toggle('hidden',t!=='admin');
+}
+function doLogin(){
+  const email=document.getElementById('auth-email').value.trim();
+  const pass=document.getElementById('auth-pass').value.trim();
+  document.getElementById('email-err').style.display='none';
+  document.getElementById('pass-err').style.display='none';
+  if(authTab==='user'){
+    if(email!=='user@123'){document.getElementById('email-err').style.display='block';return;}
+    if(pass!=='userdemo'){document.getElementById('pass-err').style.display='block';return;}
+    currentUser='user';
+    closeAuth();
+    showToast('Welcome back, Rahul! Your cosmic journey awaits.','success');
+    document.getElementById('login-btn').textContent='Dashboard';
+    document.getElementById('login-btn').onclick=()=>showPage('user-dashboard');
+    setTimeout(()=>showPage('user-dashboard'),500);
+  } else {
+    if(email!=='Admin@123'){document.getElementById('email-err').style.display='block';return;}
+    if(pass!=='admindemo'){document.getElementById('pass-err').style.display='block';return;}
+    currentUser='admin';
+    closeAuth();
+    showToast('Admin access granted. Welcome back.','success');
+    document.getElementById('login-btn').textContent='Admin Panel';
+    document.getElementById('login-btn').onclick=()=>showPage('admin-dashboard');
+    setTimeout(()=>showPage('admin-dashboard'),500);
+  }
+}
+function logout(){
+  currentUser=null;
+  document.getElementById('login-btn').textContent='Login';
+  document.getElementById('login-btn').onclick=openAuth;
+  showPage('home');
+  showToast('Logged out successfully.','success');
+}
+document.getElementById('auth-overlay').addEventListener('click',function(e){if(e.target===this)closeAuth()});
+
+// ===== TOAST =====
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ===== KUNDLI =====
+const PLANETS_DATA=[['Sun','Leo','5th','High','Direct'],['Moon','Cancer','4th','Exalted','Direct'],['Mars','Aries','1st','Exalted','Direct'],['Mercury','Virgo','6th','High','Direct'],['Jupiter','Pisces','12th','Exalted','Direct'],['Venus','Taurus','2nd','High','Retrograde'],['Saturn','Capricorn','10th','Exalted','Direct'],['Rahu','Gemini','3rd','Moderate','Always Retrograde'],['Ketu','Sagittarius','9th','Moderate','Always Retrograde']];
+const DASHA_DATA=[['Venus','2018–2038','Active'],['Sun','2038–2044','Future'],['Moon','2044–2054','Future'],['Mars','2054–2061','Future'],['Rahu','2061–2079','Future']];
+function generateKundli(){
+  const name=document.getElementById('k-name').value.trim();
+  const date=document.getElementById('k-date').value;
+  const time=document.getElementById('k-time').value;
+  const place=document.getElementById('k-place').value.trim();
+  if(!name||!date||!time||!place){showToast('Please fill all fields to generate your Kundli.','error');return;}
+  document.getElementById('k-result-name').textContent=name+'\'s Vedic Birth Chart';
+  document.getElementById('k-result-meta').textContent=`Born: ${new Date(date).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} at ${time} | ${place}`;
+  document.getElementById('k-planets').innerHTML=`<thead><tr><th>Planet</th><th>Sign</th><th>House</th><th>Strength</th><th>Motion</th></tr></thead><tbody>${PLANETS_DATA.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  document.getElementById('k-dasha').innerHTML=`<thead><tr><th>Planet</th><th>Period</th><th>Status</th></tr></thead><tbody>${DASHA_DATA.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td><span class="badge ${r[2]==='Active'?'active':'pending'}">${r[2]}</span></td></tr>`).join('')}</tbody>`;
+  document.getElementById('k-summary').textContent=`${name}, your Kundli reveals a powerful ascendant with an exalted Moon, indicating emotional intelligence, spiritual inclinations, and a nurturing nature. The Sun in Leo in the 5th house grants natural leadership and creative talents. Your current Venus Mahadasha (2018–2038) is a period of material abundance, relationship growth, and artistic fulfilment. Jupiter's exaltation in the 12th house indicates strong spiritual merit and the possibility of foreign connections. The 10th house Saturn in Capricorn ensures career success through discipline and perseverance — your most rewarding professional years lie ahead between 2026 and 2031.`;
+  const result=document.getElementById('kundli-result');
+  result.classList.add('show');
+  result.scrollIntoView({behavior:'smooth'});
+  showToast('Kundli generated successfully!','success');
+}
+
+// ===== CONTACT =====
+function submitContact(){
+  const n=document.getElementById('c-name')?.value.trim();
+  const e=document.getElementById('c-email')?.value.trim();
+  const m=document.getElementById('c-msg')?.value.trim();
+  if(!n||!e||!m){showToast('Please fill all required fields.','error');return;}
+  showToast('Message sent! We will respond within 24 hours.','success');
+  ['c-name','c-email','c-msg'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+// ===== DASH SECTIONS =====
+function showDashSection(sec,role){
+  if(role==='user'){dashSection.user=sec;renderUserDash(sec);}
+  else{dashSection.admin=sec;renderAdminDash(sec);}
+  document.querySelectorAll('#page-'+role+'-dashboard .sidebar-item').forEach(s=>{
+    s.classList.toggle('active',s.textContent.trim().toLowerCase().includes(sec.replace('dash-','').replace('admin-','').replace('-u','').split('-')[0]));
+  });
+}
+
+// ===== USER DASHBOARD =====
+function renderUserDash(sec){
+  const el=document.getElementById('user-dash-content');
+  if(!el)return;
+  const sections={
+    'dash-overview':`
+      <div class="dash-header"><h2>Welcome back, Rahul ✦</h2><p>Here is your cosmic snapshot for today</p></div>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Consultations</div><div class="value">12</div><div class="change up">&#9650; 2 this month</div></div>
+        <div class="metric"><div class="label">Saved Kundlis</div><div class="value">3</div></div>
+        <div class="metric"><div class="label">Wallet Balance</div><div class="value">&#8377;2,400</div><div class="change up">Active</div></div>
+        <div class="metric"><div class="label">Next Appointment</div><div class="value" style="font-size:1rem">Dec 20</div><div class="change" style="color:var(--gold2)">In 6 days</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap">
+        <div class="chart-box"><h3>Consultation History</h3><canvas class="chart" id="u-chart1"></canvas></div>
+        <div class="chart-box"><h3>Today's Horoscope — Libra</h3>
+          <div style="padding:1rem;background:rgba(124,58,237,.08);border-radius:10px;margin-top:.5rem">
+            <div style="font-size:2rem;margin-bottom:.5rem">♎</div>
+            <p style="color:var(--gray);font-size:.88rem;line-height:1.7">Venus and Jupiter co-operate beautifully today. Partnerships flourish, social invitations arrive, and your charm is at its peak. Legal matters move in your favour. A long-awaited decision finally arrives this evening.</p>
+          </div>
+        </div>
+      </div>
+      <div class="dash-table-wrap">
+        <div class="dash-table-head"><h3>Recent Consultations</h3></div>
+        <table class="dt"><thead><tr><th>Astrologer</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Pt. Rajan Sharma</td><td>Kundli Analysis</td><td>Dec 10, 2024</td><td><span class="badge done">Completed</span></td></tr>
+          <tr><td>Dr. Meena Devi</td><td>Career Reading</td><td>Nov 28, 2024</td><td><span class="badge done">Completed</span></td></tr>
+          <tr><td>Swami Anand Puri</td><td>Numerology</td><td>Nov 15, 2024</td><td><span class="badge done">Completed</span></td></tr>
+        </tbody></table>
+      </div>`,
+    'dash-profile':`
+      <div class="dash-header"><h2>My Profile</h2><p>Manage your personal and astrological details</p></div>
+      <div class="profile-widget">
+        <div class="profile-avatar">RG</div>
+        <h3>Rahul Gupta</h3>
+        <p style="color:var(--gray);font-size:.88rem">Premium Member since March 2022</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin-top:1rem;flex-wrap:wrap">
+          <div style="text-align:center"><div style="font-weight:700">Libra</div><div style="color:var(--gray);font-size:.78rem">Sun Sign</div></div>
+          <div style="text-align:center"><div style="font-weight:700">Scorpio</div><div style="color:var(--gray);font-size:.78rem">Moon Sign</div></div>
+          <div style="text-align:center"><div style="font-weight:700">Capricorn</div><div style="color:var(--gray);font-size:.78rem">Rising Sign</div></div>
+        </div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem">
+        <h3 style="margin-bottom:1.25rem;font-size:.95rem">Personal Details</h3>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group"><label>Full Name</label><input type="text" value="Rahul Gupta"></div>
+          <div class="form-group"><label>Email</label><input type="email" value="rahul@email.com"></div>
+          <div class="form-group"><label>Phone</label><input type="text" value="+91 98765 43210"></div>
+          <div class="form-group"><label>Date of Birth</label><input type="date" value="1990-10-15"></div>
+        </div>
+        <button class="btn btn-primary" onclick="showToast('Profile updated successfully!','success')">Save Changes</button>
+      </div>`,
+    'dash-appointments':`
+      <div class="dash-header"><h2>Upcoming Appointments</h2></div>
+      <div class="dash-table-wrap">
+        <table class="dt"><thead><tr><th>Astrologer</th><th>Service</th><th>Date & Time</th><th>Mode</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Pt. Rajan Sharma</td><td>Annual Kundli Review</td><td>Dec 20 &bull; 11:00 AM</td><td>Video Call</td><td><span class="badge pending">Confirmed</span></td></tr>
+          <tr><td>Dr. Meena Devi</td><td>Marriage Timing</td><td>Dec 27 &bull; 3:00 PM</td><td>Chat</td><td><span class="badge pending">Pending</span></td></tr>
+        </tbody></table>
+      </div>`,
+    'dash-wallet':`
+      <div class="dash-header"><h2>Wallet</h2></div>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Current Balance</div><div class="value">&#8377;2,400</div></div>
+        <div class="metric"><div class="label">Total Spent</div><div class="value">&#8377;8,750</div></div>
+      </div>
+      <div class="dash-table-wrap"><div class="dash-table-head"><h3>Transactions</h3></div>
+        <table class="dt"><thead><tr><th>Description</th><th>Date</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Kundli Analysis — Pt. Rajan</td><td>Dec 10</td><td style="color:#f87171">-&#8377;999</td></tr>
+          <tr><td>Wallet Recharge</td><td>Dec 1</td><td style="color:#4ade80">+&#8377;2,000</td></tr>
+          <tr><td>Career Reading — Dr. Meena</td><td>Nov 28</td><td style="color:#f87171">-&#8377;1,199</td></tr>
+        </tbody></table>
+      </div>`,
+    'dash-notifications':`
+      <div class="dash-header"><h2>Notifications</h2></div>
+      ${[
+        {t:'Appointment Reminder',d:'Your consultation with Pt. Rajan Sharma is scheduled for Dec 20 at 11:00 AM.',time:'2 hours ago'},
+        {t:'Horoscope Alert',d:'Your weekly Libra forecast for Dec 16–22 is now available.',time:'Yesterday'},
+        {t:'Promotion Available',d:'Exclusive: 20% off your next Elite consultation. Valid until Dec 31, 2024.',time:'2 days ago'},
+      ].map(n=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:.75rem;display:flex;gap:1rem;align-items:flex-start">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--purple);margin-top:.35rem;flex-shrink:0"></div>
+        <div><div style="font-weight:600;font-size:.9rem;margin-bottom:.25rem">${n.t}</div><div style="color:var(--gray);font-size:.85rem;line-height:1.6">${n.d}</div><div style="font-size:.75rem;color:rgba(156,163,175,.5);margin-top:.35rem">${n.time}</div></div>
+      </div>`).join('')}`,
+    'dash-settings-u':`
+      <div class="dash-header"><h2>Settings</h2></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem">
+        <h3 style="margin-bottom:1.25rem;font-size:.95rem">Preferences</h3>
+        ${['Email Notifications','SMS Alerts','Weekly Horoscope Digest','Promotional Offers'].map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.9rem">${s}</span>
+          <div style="width:44px;height:24px;background:var(--purple);border-radius:100px;position:relative;cursor:pointer">
+            <div style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;right:3px;transition:.2s"></div>
+          </div>
+        </div>`).join('')}
+        <button class="btn btn-primary" style="margin-top:1.5rem" onclick="showToast('Settings saved!','success')">Save Settings</button>
+      </div>`,
+  };
+  el.innerHTML=sections[sec]||`<div class="dash-header"><h2>${sec}</h2></div><p style="color:var(--gray)">Content coming soon.</p>`;
+  if(sec==='dash-overview')setTimeout(()=>drawMiniChart('u-chart1',['Sep','Oct','Nov','Dec'],[2,4,3,3]),100);
+}
+
+// ===== ADMIN DASHBOARD =====
+function renderAdminDash(sec){
+  const el=document.getElementById('admin-dash-content');
+  if(!el)return;
+  const sections={
+    'admin-overview':`
+      <div class="dash-header"><h2>Admin Overview</h2><p>Platform performance at a glance</p></div>
+      <div class="metrics-grid">
+        <div class="metric"><div class="label">Total Users</div><div class="value">52,841</div><div class="change up">&#9650; 12.4% this month</div></div>
+        <div class="metric"><div class="label">Monthly Revenue</div><div class="value">&#8377;18.4L</div><div class="change up">&#9650; 8.7%</div></div>
+        <div class="metric"><div class="label">Active Astrologers</div><div class="value">118</div><div class="change up">&#9650; 4 new</div></div>
+        <div class="metric"><div class="label">Consultations Today</div><div class="value">347</div><div class="change up">&#9650; 23 vs yesterday</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap">
+        <div class="chart-box"><h3>Revenue Growth (&#8377; Lakhs)</h3><canvas class="chart" id="a-rev-chart"></canvas></div>
+        <div class="chart-box"><h3>User Registrations</h3><canvas class="chart" id="a-user-chart"></canvas></div>
+      </div>
+      <div class="dash-table-wrap">
+        <div class="dash-table-head"><h3>Recent Bookings</h3><button class="btn-sm" onclick="showDashSection('admin-consultations','admin')">View All</button></div>
+        <table class="dt"><thead><tr><th>Client</th><th>Astrologer</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>${[
+          ['Ananya Singh','Pt. Rajan Sharma','Kundli Analysis','&#8377;999','Completed'],
+          ['Manish Agarwal','Pt. Vikram Tiwari','Vastu','&#8377;3,999','Pending'],
+          ['Kavya Nair','Dr. Meena Devi','Compatibility','&#8377;1,499','Completed'],
+          ['Saurabh Jain','Swami Anand Puri','Numerology','&#8377;799','Active'],
+        ].map(r=>`<tr>${r.slice(0,4).map(c=>`<td>${c}</td>`).join('')}<td><span class="badge ${r[4]==='Completed'?'done':r[4]==='Active'?'active':'pending'}">${r[4]}</span></td></tr>`).join('')}
+        </tbody></table>
+      </div>`,
+    'admin-analytics':`
+      <div class="dash-header"><h2>Analytics</h2></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;flex-wrap:wrap">
+        <div class="chart-box"><h3>Revenue (12 months)</h3><canvas class="chart" id="a-chart1"></canvas></div>
+        <div class="chart-box"><h3>Service Popularity</h3><canvas class="chart" id="a-chart2"></canvas></div>
+        <div class="chart-box"><h3>Top Zodiac Interests</h3><canvas class="chart" id="a-chart3"></canvas></div>
+        <div class="chart-box"><h3>Consultation Volume</h3><canvas class="chart" id="a-chart4"></canvas></div>
+      </div>`,
+    'admin-users':`
+      <div class="dash-header"><h2>User Management</h2></div>
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <input type="text" placeholder="Search users..." style="flex:1;min-width:200px;padding:.65rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.88rem;outline:none">
+        <button class="btn btn-primary" onclick="showToast('Add user modal would open here.','success')">+ Add User</button>
+      </div>
+      <div class="dash-table-wrap"><table class="dt"><thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${[
+        ['Rahul Gupta','rahul@email.com','Premium','Mar 2022'],
+        ['Ananya Singh','ananya@email.com','Basic','Jun 2023'],
+        ['Manish Agarwal','manish@email.com','Elite','Jan 2023'],
+        ['Kavya Nair','kavya@email.com','Premium','Sep 2023'],
+        ['Saurabh Jain','saurabh@email.com','Basic','Nov 2023'],
+      ].map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}<td><span class="badge active">Active</span></td><td><button class="btn-sm" onclick="showToast('Edit user panel.','success')">Edit</button></td></tr>`).join('')}
+      </tbody></table></div>`,
+    'admin-astrologers':`
+      <div class="dash-header"><h2>Astrologer Management</h2></div>
+      <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <input type="text" placeholder="Search astrologers..." style="flex:1;min-width:200px;padding:.65rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:.88rem;outline:none">
+        <button class="btn btn-primary" onclick="showToast('Add astrologer form would open.','success')">+ Add Astrologer</button>
+      </div>
+      <div class="dash-table-wrap"><table class="dt"><thead><tr><th>Name</th><th>Specialisation</th><th>Experience</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>${ASTROLOGERS.map(a=>`<tr><td>${a.name}</td><td>${a.spec}</td><td>${a.exp} yrs</td><td style="color:var(--gold2)">${a.rating} &#9733;</td><td><span class="badge active">Active</span></td><td><button class="btn-sm" onclick="showToast('Edit panel.','success')">Edit</button></td></tr>`).join('')}
+      </tbody></table></div>`,
+    'admin-consultations':`
+      <div class="dash-header"><h2>Consultation Management</h2></div>
+      <div class="dash-table-wrap"><table class="dt"><thead><tr><th>ID</th><th>Client</th><th>Astrologer</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>${[
+        ['#C1042','Rahul Gupta','Pt. Rajan','Kundli','Dec 10','&#8377;999','Completed'],
+        ['#C1041','Ananya Singh','Dr. Meena','Compatibility','Dec 9','&#8377;1,499','Completed'],
+        ['#C1040','Manish Agarwal','Pt. Vikram','Vastu','Dec 8','&#8377;3,999','Pending'],
+        ['#C1039','Kavya Nair','Dr. Meena','Career','Dec 7','&#8377;1,199','Completed'],
+        ['#C1038','Saurabh Jain','Swami Anand','Numerology','Dec 6','&#8377;799','Active'],
+      ].map(r=>`<tr>${r.slice(0,6).map(c=>`<td>${c}</td>`).join('')}<td><span class="badge ${r[6]==='Completed'?'done':r[6]==='Active'?'active':'pending'}">${r[6]}</span></td></tr>`).join('')}
+      </tbody></table></div>`,
+    'admin-blog':`
+      <div class="dash-header"><h2>Blog Management</h2></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1.5rem"><button class="btn btn-primary" onclick="showToast('Blog editor would open.','success')">+ New Post</button></div>
+      <div class="dash-table-wrap"><table class="dt"><thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Date</th><th>Actions</th></tr></thead>
+      <tbody>${BLOG_POSTS.map(b=>`<tr><td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.title}</td><td>${b.cat}</td><td>${b.author}</td><td>${b.date}</td><td style="display:flex;gap:.4rem"><button class="btn-sm" onclick="showToast('Edit post.','success')">Edit</button><button class="btn-sm" style="border-color:#f87171;color:#f87171" onclick="showToast('Post deleted.','error')">Del</button></td></tr>`).join('')}
+      </tbody></table></div>`,
+    'admin-reports':`
+      <div class="dash-header"><h2>Reports</h2></div>
+      <div class="grid-3" style="margin-bottom:1.5rem">
+        <div class="metric" style="cursor:pointer" onclick="showToast('Downloading Revenue Report...','success')"><div class="label">Revenue Report</div><div class="value" style="font-size:1.2rem">Dec 2024</div><div class="change up">&#8595; Download PDF</div></div>
+        <div class="metric" style="cursor:pointer" onclick="showToast('Downloading Consultation Report...','success')"><div class="label">Consultations</div><div class="value" style="font-size:1.2rem">4,218 total</div><div class="change up">&#8595; Download CSV</div></div>
+        <div class="metric" style="cursor:pointer" onclick="showToast('Downloading User Report...','success')"><div class="label">User Growth</div><div class="value" style="font-size:1.2rem">+1,240</div><div class="change up">&#8595; Download CSV</div></div>
+      </div>
+      <div class="chart-box"><h3>Annual Revenue Overview (&#8377; Lakhs)</h3><canvas class="chart" id="rep-chart"></canvas></div>`,
+    'admin-settings':`
+      <div class="dash-header"><h2>Platform Settings</h2></div>
+      <div style="display:grid;gap:1.5rem">
+        ${[['Website Settings','Site name, tagline, contact info, logo'],['SEO Settings','Meta titles, descriptions, canonical URLs, sitemap'],['Notification Settings','Email templates, SMS providers, push notification config'],['Payment Settings','Razorpay API, commission rates, payout schedules']].map(([t,d])=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-weight:600">${t}</div><div style="color:var(--gray);font-size:.85rem;margin-top:.2rem">${d}</div></div>
+          <button class="btn-sm" onclick="showToast('${t} panel would open.','success')">Configure</button>
+        </div>`).join('')}
+      </div>`,
+  };
+  el.innerHTML=sections[sec]||`<div class="dash-header"><h2>${sec}</h2></div>`;
+  if(sec==='admin-overview')setTimeout(()=>{
+    drawMiniChart('a-rev-chart',['Jul','Aug','Sep','Oct','Nov','Dec'],[12,14,13,16,17,18.4]);
+    drawMiniChart('a-user-chart',['Jul','Aug','Sep','Oct','Nov','Dec'],[3200,3800,4100,4500,4900,5200]);
+  },100);
+  if(sec==='admin-analytics')setTimeout(()=>{
+    drawMiniChart('a-chart1',['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],[8,9,10,11,12,13,11,14,13,16,17,18]);
+    drawBarChart('a-chart2',['Kundli','Compat','Career','Vastu','Tarot','Numerology'],[35,22,18,8,9,8]);
+    drawBarChart('a-chart3',['Scorpio','Leo','Libra','Aries','Pisces','Gemini'],[18,16,15,13,11,10]);
+    drawMiniChart('a-chart4',['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],[280,310,340,380,400,350,390,420,410,440,460,480]);
+  },100);
+  if(sec==='admin-reports')setTimeout(()=>drawMiniChart('rep-chart',['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],[8,9,10,11,12,13,11,14,13,16,17,18]),100);
+}
+
+// ===== MINI CHARTS (no CDN) =====
+function drawMiniChart(id,labels,data){
+  const canvas=document.getElementById(id);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||400;canvas.height=180;
+  const W=canvas.width,H=canvas.height,pad=40;
+  const max=Math.max(...data)*1.1,min=0;
+  const x=i=>pad+(i/(data.length-1))*(W-pad*2);
+  const y=v=>H-pad-(v-min)/(max-min)*(H-pad*2);
+  ctx.clearRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const gy=pad+i*(H-pad*2)/4;
+    ctx.beginPath();ctx.moveTo(pad,gy);ctx.lineTo(W-pad,gy);ctx.stroke();
+  }
+  // Gradient fill
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(124,58,237,.4)');grad.addColorStop(1,'rgba(124,58,237,.0)');
+  ctx.beginPath();ctx.moveTo(x(0),y(data[0]));
+  data.forEach((v,i)=>ctx.lineTo(x(i),y(v)));
+  ctx.lineTo(x(data.length-1),H-pad);ctx.lineTo(x(0),H-pad);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  // Line
+  ctx.beginPath();ctx.moveTo(x(0),y(data[0]));
+  data.forEach((v,i)=>ctx.lineTo(x(i),y(v)));
+  ctx.strokeStyle='rgba(124,58,237,.9)';ctx.lineWidth=2;ctx.stroke();
+  // Points
+  data.forEach((v,i)=>{ctx.beginPath();ctx.arc(x(i),y(v),3,0,Math.PI*2);ctx.fillStyle='var(--purple2)';ctx.fill();});
+  // Labels
+  ctx.fillStyle='rgba(156,163,175,.7)';ctx.font='11px sans-serif';ctx.textAlign='center';
+  labels.forEach((l,i)=>ctx.fillText(l,x(i),H-8));
+}
+function drawBarChart(id,labels,data){
+  const canvas=document.getElementById(id);
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth||400;canvas.height=180;
+  const W=canvas.width,H=canvas.height,pad=40;
+  const max=Math.max(...data)*1.2;
+  const bw=Math.min(40,(W-pad*2)/data.length*.6);
+  ctx.clearRect(0,0,W,H);
+  data.forEach((v,i)=>{
+    const bx=pad+(i+.5)*(W-pad*2)/data.length-bw/2;
+    const bh=(v/max)*(H-pad*2);
+    const by=H-pad-bh;
+    const grad=ctx.createLinearGradient(0,by,0,H-pad);
+    grad.addColorStop(0,'rgba(212,160,23,.9)');grad.addColorStop(1,'rgba(212,160,23,.3)');
+    ctx.beginPath();ctx.roundRect?ctx.roundRect(bx,by,bw,bh,4):ctx.rect(bx,by,bw,bh);
+    ctx.fillStyle=grad;ctx.fill();
+    ctx.fillStyle='rgba(156,163,175,.7)';ctx.font='10px sans-serif';ctx.textAlign='center';
+    ctx.fillText(labels[i],bx+bw/2,H-8);
+    ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillText(v+'%',bx+bw/2,by-5);
+  });
+}
+
+// Close auth on overlay click already bound above
+</script>
+</body>
+</html>
